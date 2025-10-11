@@ -26,13 +26,11 @@ export default function RootLayout({
           strategy="afterInteractive" // This loads the script after the page is usable, which is great for performance
         >
           {`
-            // ==========================================================
-            // (function(a,b,c,d){
-            //  a='https://tags.tiqcdn.com/utag/nsdigitalltd/databoy-blog/prod/utag.js';
-            //  b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
-            //  a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
-            // })();
-            // ==========================================================
+            (function(a,b,c,d){
+            a='https://tags.tiqcdn.com/utag/nsdigitalltd/databoy-blog/prod/utag.js';
+            b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
+            a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+            })();
           `}
         </Script>
       </head>
