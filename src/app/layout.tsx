@@ -1,15 +1,14 @@
-// Full code for: src/app/layout.tsx
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script"; // 1. We import the special Script component
+import Script from "next/script";
+import { TealiumTracker } from "../components/TealiumTracker"; // 1. Import the new component
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My Data & Analytics Blog", // You can customize the title
-  description: "A blog about modern data and web analytics.", // You can customize the description
+  title: "My Data & Analytics Blog",
+  description: "A blog about modern data and web analytics.",
 };
 
 export default function RootLayout({
@@ -20,7 +19,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* 2. We add the Script component inside the <head> tag */}
         <Script
           id="tealium-integration"
           strategy="afterInteractive" // This loads the script after the page is usable, which is great for performance
@@ -34,7 +32,10 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <TealiumTracker /> {/* 2. Place the component here */}
+        {children}
+      </body>
     </html>
   );
 }
