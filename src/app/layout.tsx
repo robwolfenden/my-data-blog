@@ -24,7 +24,7 @@ export default function RootLayout({
       <head>
         <Script
           id="tealium-integration"
-          strategy="afterInteractive" // This loads the script after the page is usable, which is great for performance
+          strategy="beforeInteractive" // This loads the script after the page is usable, which is great for performance
         >
           {`
             (function(a,b,c,d){
