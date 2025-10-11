@@ -1,8 +1,11 @@
+// Full code for: src/app/layout.tsx
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import { TealiumTracker } from "../components/TealiumTracker"; // 1. Import the new component
+import { TealiumTracker } from "@/components/TealiumTracker";
+import { Suspense } from "react"; // 1. Import Suspense from React
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,8 +36,11 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={inter.className}>
-        <TealiumTracker /> {/* 2. Place the component here */}
-        {children}
+        {/* 2. Wrap the children and the tracker in a Suspense boundary */}
+        <Suspense>
+          <TealiumTracker />
+          {children}
+        </Suspense>
       </body>
     </html>
   );

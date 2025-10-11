@@ -1,26 +1,26 @@
 // Full code for: src/components/TealiumTracker.tsx
 
-"use client"; // This is very important.
+"use client";
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
-// Make sure the "export" keyword is here!
-export function TealiumTracker() { 
+export function TealiumTracker() {
   const pathname = usePathname();
 
-  useEffect(() => {
-    console.log(`Route changed to: ${pathname}. Firing Tealium view.`);
+  // DEBUG: This log will run every time the component renders.
+  console.log(`TealiumTracker is RENDERING with path: ${pathname}`);
 
-    // Check if the Tealium utag object is available on the window
+  useEffect(() => {
+    // DEBUG: This log runs only after the pathname has changed.
+    console.log(`TealiumTracker useEffect is FIRING for path: ${pathname}`);
+
     if (window.utag) {
-      // Manually trigger a Tealium page view event.
       window.utag.view({
         pathname: pathname,
-        // You can add other page-specific variables here, e.g., page_name
       });
     }
-  }, [pathname]); // This runs the code only when the pathname changes.
+  }, [pathname]);
 
-  return null; // This component does not render any visible HTML.
+  return null;
 }
