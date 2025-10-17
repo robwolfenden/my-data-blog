@@ -16,9 +16,9 @@ export default function Home() {
   // Fire ONE page_view with all the fields
   useEffect(() => {
     trackPageView({
-      page_type: "homepage",
+      //page_type: "homepage",
       content_category: "blog-listing",
-      page_name: "My Data & Analytics Blog",
+      //page_name: "My Data & Analytics Blog",
       page_path: "/",
     });
   }, [trackPageView]);
