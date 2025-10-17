@@ -4,14 +4,8 @@ html {
   background-color: #ffffff;
   color: #1a202c;
 }
-
 body {
   margin: 0;
   padding: 0;
-  /* NEW: ensure body inherits your font too */
-  font-family: var(--font-doto), sans-serif;
 }
-
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-}
+h1,h2,h3,h4,h5,h6 { margin: 0; }

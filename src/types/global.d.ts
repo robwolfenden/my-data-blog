@@ -4,8 +4,8 @@ export {};
 declare global {
   interface Window {
     utag?: {
-      view: (data: Record<string, any>) => void;
-      link: (data: Record<string, any>) => void;
+      view?: (data: Record<string, any>) => void;
+      link?: (data: Record<string, any>) => void;
     };
   }
 }

@@ -1,25 +1,16 @@
-// Full and final code for: src/context/TealiumContext.tsx
-
+// src/context/TealiumContext.tsx
 "use client";
 
-import {
+import React, {
   createContext,
-  useContext,
-  ReactNode,
   useCallback,
-  useRef,
+  useContext,
   useEffect,
+  useRef,
 } from "react";
 import { usePathname } from "next/navigation";
 
-/** ===== Types you were already using (kept intact) ===== */
 export interface TealiumViewData {
-  [key: string]: any;
-}
-export interface TealiumLinkData {
-  event_category: "content";
-  event_action: string;
-  event_content: string;
   [key: string]: any;
 }
 export interface TealiumLinkParams {
@@ -27,168 +18,144 @@ export interface TealiumLinkParams {
   event_content: string;
   [key: string]: any;
 }
+
 interface TealiumContextType {
   trackPageView: (pageData: TealiumViewData) => void;
   trackLink: (eventData: TealiumLinkParams) => void;
 }
 
-/** ===== Config knobs ===== */
-const DEBUG = process.env.NEXT_PUBLIC_TEALIUM_DEBUG === "1";
-// Poll every 120ms up to 8s as a fallback if onLoad didn't fire for some reason
-const POLL_MS = 120;
-const MAX_WAIT_MS = 8000;
-
-/** ===== Context ===== */
 const TealiumContext = createContext<TealiumContextType | undefined>(undefined);
 
-/** A tiny event queue so we never lose hits if Tealium isn't ready yet */
-type Queued =
-  | { type: "view"; payload: TealiumViewData }
-  | { type: "link"; payload: TealiumLinkData };
+// console debug toggle: set NEXT_PUBLIC_TEALIUM_DEBUG=1
+const DEBUG = process.env.NEXT_PUBLIC_TEALIUM_DEBUG === "1";
+const log = (...args: any[]) => DEBUG && console.log(...args);
 
-export const TealiumProvider = ({ children }: { children: ReactNode }) => {
+export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const pathname = usePathname();
-
-  /** Remember the last path we tracked a "view" for, to avoid duplicates */
   const lastTrackedPath = useRef<string | null>(null);
 
-  /** Queue and readiness refs */
-  const queueRef = useRef<Queued[]>([]);
-  const flushTimerRef = useRef<number | null>(null);
-  const startedPollingRef = useRef(false);
-  const utagReadyResolvedRef = useRef(false);
+  // queues while utag loads
+  const viewQueue = useRef<TealiumViewData[]>([]);
+  const linkQueue = useRef<TealiumLinkParams[]>([]);
+  const isReadyRef = useRef(false);
+  const startedWaitRef = useRef(false);
 
-  const isUtagReady = () => typeof window !== "undefined" && !!window.utag;
+  const flushQueues = useCallback(() => {
+    if (!isReadyRef.current || typeof window === "undefined" || !window.utag)
+      return;
 
-  const flushQueueIfReady = useCallback(() => {
-    if (!isUtagReady()) return;
-    const q = queueRef.current;
-    if (!q.length) return;
-
-    if (DEBUG) console.log(`[Tealium] Flushing ${q.length} queued event(s)…`);
-
-    // Flush in FIFO order
-    while (q.length) {
-      const item = q.shift()!;
-      if (item.type === "view") {
-        window.utag!.view(item.payload);
-        if (DEBUG) console.log("Tealium event fired: utag.view", item.payload);
-      } else {
-        window.utag!.link(item.payload);
-        if (DEBUG) console.log("Tealium event fired: utag.link", item.payload);
-      }
+    let v: TealiumViewData | undefined;
+    while ((v = viewQueue.current.shift())) {
+      window.utag.view!(v);
+      lastTrackedPath.current = pathname;
+      log("Tealium event fired: utag.view", v);
     }
-  }, []);
 
-  /** Fallback polling (only starts once and stops once timed out or ready) */
-  const ensureUtagReadyWithPolling = useCallback(() => {
-    if (startedPollingRef.current || utagReadyResolvedRef.current) return;
-    startedPollingRef.current = true;
-
-    const start = Date.now();
-    const tick = () => {
-      if (isUtagReady()) {
-        utagReadyResolvedRef.current = true;
-        flushQueueIfReady();
-        return;
-      }
-      if (Date.now() - start >= MAX_WAIT_MS) {
-        if (DEBUG) console.warn("[Tealium] utag not ready after max wait.");
-        return;
-      }
-      flushTimerRef.current = window.setTimeout(tick, POLL_MS);
-    };
-
-    flushTimerRef.current = window.setTimeout(tick, POLL_MS);
-  }, [flushQueueIfReady]);
-
-  /** Listen for the explicit "tealium:ready" signal from layout.tsx */
-  useEffect(() => {
-    const onReady = () => {
-      utagReadyResolvedRef.current = true;
-      flushQueueIfReady();
-    };
-    window.addEventListener("tealium:ready", onReady, { once: true });
-    return () => window.removeEventListener("tealium:ready", onReady);
-  }, [flushQueueIfReady]);
-
-  /** Clean up any pending timers on unmount */
-  useEffect(() => {
-    return () => {
-      if (flushTimerRef.current) window.clearTimeout(flushTimerRef.current);
-    };
-  }, []);
-
-  /** Helper: enqueue + try flush */
-  const enqueue = (item: Queued) => {
-    queueRef.current.push(item);
-    // Try to flush immediately if utag is available; otherwise ensure polling
-    flushQueueIfReady();
-    if (!isUtagReady()) ensureUtagReadyWithPolling();
-  };
-
-  /** ===== Tracking functions ===== */
+    let l: TealiumLinkParams | undefined;
+    while ((l = linkQueue.current.shift())) {
+      window.utag.link!(l);
+      log("Tealium event fired: utag.link", l);
+    }
+  }, [pathname]);
 
   const trackPageView = useCallback(
     (pageData: TealiumViewData) => {
-      // De-dup based on current path
+      // de-dupe per path
       if (pathname === lastTrackedPath.current) {
-        if (DEBUG) console.log("[Tealium] view skipped (already tracked):", pathname);
+        log("Tealium view skipped: duplicate path", pathname);
         return;
       }
 
-      // Build final data model *after* the H1 is in the DOM
-      requestAnimationFrame(() => {
-        try {
-          const h1 = document.querySelector("h1");
-          const h1Attr = h1?.getAttribute("data-attribute-page-title") || undefined;
-          const pageTitle = h1Attr || document.title;
+      const h1 =
+        typeof document !== "undefined" ? document.querySelector("h1") : null;
+      const pageTitle =
+        h1?.getAttribute("data-attribute-page-title") ?? document?.title;
 
-          // Respect caller overrides; otherwise fill with h1 + path
-          const payload: TealiumViewData = {
-            page_name: pageData.page_name ?? pageTitle,
-            page_path: pageData.page_path ?? pathname,
-            ...pageData,
-          };
+      const payload: TealiumViewData = {
+        page_name: pageData.page_name ?? pageTitle,
+        page_path: pageData.page_path ?? pathname,
+        ...pageData,
+      };
 
-          if (isUtagReady()) {
-            window.utag!.view(payload);
-            lastTrackedPath.current = pathname;
-            if (DEBUG) console.log("Tealium event fired: utag.view", payload);
-          } else {
-            enqueue({ type: "view", payload });
-            // Only mark lastTrackedPath once we actually send, to be strict
-            const markSentWhenFlushed = () => {
-              lastTrackedPath.current = pathname;
-              window.removeEventListener("tealium:ready", markSentWhenFlushed);
-            };
-            window.addEventListener("tealium:ready", markSentWhenFlushed, { once: true });
-          }
-        } catch (err) {
-          if (DEBUG) console.warn("Tealium view failed:", err);
-        }
-      });
+      const ready =
+        typeof window !== "undefined" &&
+        !!window.utag &&
+        typeof window.utag.view === "function";
+
+      if (ready) {
+        window.utag!.view!(payload);
+        lastTrackedPath.current = pathname;
+        log("Tealium event fired: utag.view", payload);
+      } else {
+        viewQueue.current.push(payload);
+        log("Tealium queued view", payload);
+      }
     },
     [pathname]
   );
 
   const trackLink = useCallback((eventData: TealiumLinkParams) => {
-    const payload: TealiumLinkData = {
+    const payload: TealiumLinkParams = {
       event_category: "content",
       ...eventData,
     };
 
-    try {
-      if (isUtagReady()) {
-        window.utag!.link(payload);
-        if (DEBUG) console.log("Tealium event fired: utag.link", payload);
-      } else {
-        enqueue({ type: "link", payload });
-      }
-    } catch (err) {
-      if (DEBUG) console.warn("Tealium link failed:", err);
+    const ready =
+      typeof window !== "undefined" &&
+      !!window.utag &&
+      typeof window.utag.link === "function";
+
+    if (ready) {
+      window.utag!.link!(payload);
+      log("Tealium event fired: utag.link", payload);
+    } else {
+      linkQueue.current.push(payload);
+      log("Tealium queued link", payload);
     }
   }, []);
+
+  // dispatch from <TealiumScript/> onload
+  useEffect(() => {
+    const onReady = () => {
+      isReadyRef.current = true;
+      flushQueues();
+    };
+    window.addEventListener("tealium:ready", onReady);
+    return () => window.removeEventListener("tealium:ready", onReady);
+  }, [flushQueues]);
+
+  // fallback poll (TS-safe)
+  useEffect(() => {
+    if (isReadyRef.current || startedWaitRef.current) return;
+    startedWaitRef.current = true;
+
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+
+      const hasUtag =
+        typeof window !== "undefined" &&
+        !!window.utag &&
+        typeof window.utag.view === "function" &&
+        typeof window.utag.link === "function";
+
+      if (hasUtag) {
+        isReadyRef.current = true;
+        clearInterval(timer);
+        flushQueues();
+        return;
+      }
+
+      if (tries > 40) {
+        clearInterval(timer);
+        log("Tealium 'utag' not detected after waiting.");
+      }
+    }, 150);
+
+    return () => clearInterval(timer);
+  }, [flushQueues]);
 
   return (
     <TealiumContext.Provider value={{ trackPageView, trackLink }}>
@@ -198,9 +165,7 @@ export const TealiumProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useTealium = () => {
-  const context = useContext(TealiumContext);
-  if (context === undefined) {
-    throw new Error("useTealium must be used within a TealiumProvider");
-  }
-  return context;
+  const ctx = useContext(TealiumContext);
+  if (!ctx) throw new Error("useTealium must be used within a TealiumProvider");
+  return ctx;
 };
