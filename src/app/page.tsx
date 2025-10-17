@@ -1,52 +1,65 @@
-// Full and final code for: src/app/page.tsx
-
+// src/app/page.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { getAllPosts, WPost } from '../../lib/wordpress';
-import Link from 'next/link';
-import { Container, Title, Text, Card, SimpleGrid, Group, Badge, Loader } from '@mantine/core';
-import { useTealium } from '../context/TealiumContext';
-import ContactForm from '../components/ContactForm'; // <-- CORRECTED PATH
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Container, Title, Text, Card, SimpleGrid, Group, Badge, Loader } from "@mantine/core";
+import { getAllPosts, WPost } from "../../lib/wordpress";
+import { useTealium } from "../context/TealiumContext";
+import ContactForm from "../components/ContactForm";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<WPost[]>([]);
   const [loading, setLoading] = useState(true);
   const { trackPageView, trackLink } = useTealium();
 
+  // Fire ONE page_view with all the fields
   useEffect(() => {
     trackPageView({
-      page_type: 'homepage',
-      content_category: 'blog-listing',
+      page_type: "homepage",
+      content_category: "blog-listing",
+      page_name: "My Data & Analytics Blog",
+      page_path: "/",
     });
   }, [trackPageView]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    (async () => {
       setLoading(true);
-      const posts = await getAllPosts();
-      setAllPosts(posts);
-      setLoading(false);
-    };
-    fetchPosts();
+      try {
+        const posts = await getAllPosts();
+        setAllPosts(posts);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   const handlePostLinkClick = (postTitle: string) => {
     trackLink({
-        event_action: 'onsite link',
-        event_content: `post: ${postTitle}`,
+      event_action: "onsite link",
+      event_content: `post: ${postTitle}`,
     });
-  }
+  };
 
   if (loading) {
-    return <Container size="md" py="xl" style={{ display: 'flex', justifyContent: 'center' }}><Loader /></Container>;
+    return (
+      <Container size="md" py="xl" style={{ display: "flex", justifyContent: "center" }}>
+        <Loader />
+      </Container>
+    );
   }
 
   return (
     <Container size="md" py="xl">
-      <Title order={1} data-attribute-page-title="Blog Homepage">
+      <Title
+        order={1}
+        data-track-page-name="My Data & Analytics Blog"
+        data-attribute-page-title="Blog Homepage"
+      >
         My Data & Analytics Blog
       </Title>
+
       <Text c="dimmed" mt="md">
         Welcome to my headless blog powered by Next.js and WordPress.
       </Text>
@@ -67,19 +80,16 @@ export default function Home() {
           >
             <Group justify="space-between" mt="md" mb="xs">
               <Title order={3} size="h3">{post.title}</Title>
-              <Badge color="blue" variant="light">
-                New
-              </Badge>
+              <Badge color="blue" variant="light">New</Badge>
             </Group>
             <Text size="sm" c="dimmed">
-              Published on: {new Date(post.date).toLocaleString('en-GB')}
+              Published on: {new Date(post.date).toLocaleString("en-GB")}
             </Text>
           </Card>
         ))}
       </SimpleGrid>
 
       <ContactForm />
-
     </Container>
   );
 }
