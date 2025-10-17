@@ -1,25 +1,33 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
-
 import localFont from "next/font/local";
+
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
 
 import { TealiumProvider } from "../context/TealiumContext";
-import TealiumScript from "./TealiumScript"; // your helper component
+import TealiumScript from "./TealiumScript";
 
-// Font file lives at: src/fonts/Doto-Variable.woff2
 const dotoFont = localFont({
   src: "../fonts/Doto-Variable.woff2",
-  weight: "100 900",   // variable font range
+  weight: "100 900",
   display: "swap",
   preload: true,
   variable: "--font-doto",
 });
 
+// Tell Mantine to use Doto everywhere (text + headings)
+const theme = createTheme({
+  fontFamily:
+    'var(--font-doto), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+  headings: {
+    fontFamily:
+      'var(--font-doto), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+  },
+});
+
 export const metadata: Metadata = {
-  title: "Coming Soon",
+  title: "My Data & Analytics Blog",
   description: "A blog about modern data and web analytics.",
 };
 
@@ -29,17 +37,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* helps establish early connection for utag */}
         <link rel="preconnect" href="https://tags.tiqcdn.com" crossOrigin="" />
       </head>
-
-      {/* ✅ Apply BOTH the generated class AND the CSS variable to BODY */}
+      {/* expose the font: className loads it, variable provides --font-doto */}
       <body className={`${dotoFont.className} ${dotoFont.variable}`}>
-        {/* Loads utag and dispatches "tealium:ready" (your component) */}
         <TealiumScript src={tealiumSrc} />
-
         <TealiumProvider>
-          <MantineProvider>{children}</MantineProvider>
+          <MantineProvider theme={theme}>{children}</MantineProvider>
         </TealiumProvider>
       </body>
     </html>
