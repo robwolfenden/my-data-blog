@@ -1,10 +1,8 @@
-// src/context/TealiumContext.tsx
 "use client";
 
 import { createContext, useContext, ReactNode, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 
-/** ---------- Types shared by callers ---------- */
 export interface TealiumViewData {
   [key: string]: any;
 }
@@ -27,46 +25,57 @@ interface TealiumContextType {
 
 const TealiumContext = createContext<TealiumContextType | undefined>(undefined);
 
+// small helper to ensure we run after paint
+function afterPaint(cb: () => void) {
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => setTimeout(cb, 0));
+  } else {
+    setTimeout(cb, 0);
+  }
+}
+
 export const TealiumProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const lastTrackedPath = useRef<string | null>(null);
 
   const trackPageView = useCallback(
     (pageData: TealiumViewData) => {
-      // De-dupe same-path double fires
+      // de-dupe by path
       if (pathname === lastTrackedPath.current) {
-        console.log("Tealium view skipped: path already tracked.", pathname);
+        // console.log("Tealium view skipped: already tracked", pathname);
         return;
       }
 
-      setTimeout(() => {
-        const h1 = document.querySelector("h1");
-        const attrName =
-          h1?.getAttribute("data-track-page-name") ||
-          h1?.getAttribute("data-attribute-page-title") ||
-          undefined;
+      afterPaint(() => {
+        // 1) If caller gave page_name/page_path, we DO NOT override them.
+        let effectivePageName = pageData.page_name as string | undefined;
+        let effectivePagePath =
+          (pageData.page_path as string | undefined) ?? pathname ?? window.location.pathname;
 
-        // Respect caller-supplied values first; then attribute; then document.title.
-        const resolvedPageName =
-          pageData.page_name ?? attrName ?? document.title ?? "Page";
-
-        const resolvedPagePath = pageData.page_path ?? pathname ?? window.location.pathname;
+        // 2) If caller did NOT provide page_name, try <h1 data-track-page-name> then <h1 data-attribute-page-title>, then document.title
+        if (!effectivePageName) {
+          const h1 = document.querySelector("h1");
+          effectivePageName =
+            h1?.getAttribute("data-track-page-name") ||
+            h1?.getAttribute("data-attribute-page-title") ||
+            document.title ||
+            "Page";
+        }
 
         const dataLayer: TealiumViewData = {
           ...pageData,
-          page_name: resolvedPageName,
-          page_path: resolvedPagePath,
+          page_name: effectivePageName,
+          page_path: effectivePagePath,
         };
 
         if (window.utag) {
-          // Use optional chaining to be safe
-          window.utag?.view(dataLayer);
+          window.utag.view(dataLayer);
           lastTrackedPath.current = pathname;
-          console.log("Tealium event fired: utag.view", dataLayer);
+          // console.log("Tealium event fired: utag.view", dataLayer);
         } else {
           console.warn("Tealium 'utag' object not found.");
         }
-      }, 0);
+      });
     },
     [pathname]
   );
@@ -77,8 +86,8 @@ export const TealiumProvider = ({ children }: { children: ReactNode }) => {
       ...eventData,
     };
     if (window.utag) {
-      window.utag?.link(dataLayer);
-      console.log("Tealium event fired: utag.link", dataLayer);
+      window.utag.link(dataLayer);
+      // console.log("Tealium event fired: utag.link", dataLayer);
     } else {
       console.warn("Tealium 'utag' object not found.");
     }
