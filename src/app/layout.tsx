@@ -1,21 +1,21 @@
-// Full and final code for: src/app/layout.tsx
-
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
-import localFont from 'next/font/local';
-import '@mantine/core/styles.css';
-import { MantineProvider } from '@mantine/core';
-import { TealiumProvider } from '../context/TealiumContext';
+import localFont from "next/font/local";
+import "@mantine/core/styles.css";
+import { MantineProvider } from "@mantine/core";
+import { TealiumProvider } from "../context/TealiumContext";
 
+// If your font is at src/app/fonts/Doto-Variable.woff2:
 const dotoFont = localFont({
-  src: '../../fonts/Doto-Variable.woff2',
-  display: 'swap',
-  variable: '--font-doto',
+  src: "./fonts/Doto-Variable.woff2",
+  display: "swap",
+  variable: "--font-doto",
 });
 
 export const metadata: Metadata = {
-  title: "My Data & Analytics Blog",
+  title: "Coming soon",
   description: "A blog about modern data and web analytics.",
 };
 
@@ -24,8 +24,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={dotoFont.variable}>
       <head>
         {/* PREVENT AUTOMATIC TEALIUM PAGE VIEW */}
-        {/* This script MUST come BEFORE the main utag.js script. */}
-        {/* It tells Tealium not to fire its default page view event on load. */}
         <Script id="tealium-config" strategy="beforeInteractive">
           {`
             window.utag_cfg_ovrd = window.utag_cfg_ovrd || {};
@@ -42,11 +40,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <TealiumProvider>
-          <MantineProvider>
+          <MantineProvider
+            theme={{
+              // Tell Mantine to use your font variable everywhere
+              fontFamily: "var(--font-doto), sans-serif",
+              headings: { fontFamily: "var(--font-doto), sans-serif" },
+            }}
+          >
             {children}
           </MantineProvider>
         </TealiumProvider>
       </body>
     </html>
   );
-} 
+}
