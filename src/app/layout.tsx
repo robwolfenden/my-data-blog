@@ -1,5 +1,4 @@
-// Full and final code for: src/app/layout.tsx
-
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
@@ -7,9 +6,10 @@ import localFont from "next/font/local";
 import "@mantine/core/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { TealiumProvider } from "../context/TealiumContext";
+import TealiumScript from "./TealiumScript";
 
 const dotoFont = localFont({
-  src: "../../fonts/Doto-Variable.woff2",
+  src: "../fonts/Doto-Variable.woff2",
   display: "swap",
   variable: "--font-doto",
 });
@@ -25,32 +25,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={dotoFont.variable}>
       <head>
-        {/* Help the browser connect a touch earlier */}
-        <link rel="preconnect" href="https://tags.tiqcdn.com" crossOrigin="" />
-
-        {/* Tell Tealium not to auto-fire a view on load (we control it) */}
+        <link rel="preconnect" href="https://tags.tiqcdn.com" crossOrigin="anonymous" />
         <Script id="tealium-config" strategy="beforeInteractive">
           {`
             window.utag_cfg_ovrd = window.utag_cfg_ovrd || {};
             window.utag_cfg_ovrd.noview = true;
           `}
         </Script>
-
-        {/* Load Tealium. When it finishes, broadcast a readiness signal */}
-        <Script
-          id="tealium-utag"
-          strategy="afterInteractive"
-          src={tealiumSrc}
-          onLoad={() => {
-            try {
-              window.dispatchEvent(new Event("tealium:ready"));
-            } catch {}
-          }}
-        />
+        {/* Use the client wrapper so the onLoad handler is legal */}
+        <TealiumScript src={tealiumSrc} />
       </head>
       <body>
         <TealiumProvider>
-          <MantineProvider>{children}</MantineProvider>
+          <MantineProvider>
+            {children}
+          </MantineProvider>
         </TealiumProvider>
       </body>
     </html>
