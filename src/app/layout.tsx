@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
@@ -9,10 +8,17 @@ import TealiumScript from "./TealiumScript";
 import Script from "next/script";
 
 const dotoFont = localFont({
-  // you moved font to: src/fonts/Doto-Variable.woff2
-  // layout.tsx is in src/app, so ../fonts is the correct relative path
-  src: "../fonts/Doto-Variable.woff2",
+  // you moved the file to: src/fonts/Doto-Variable.woff2
+  // layout.tsx is in src/app → one level up to src, then /fonts
+  src: [
+    {
+      path: "../fonts/Doto-Variable.woff2",
+      weight: "100 900",     // ← variable font range
+      style: "normal",
+    },
+  ],
   display: "swap",
+  preload: true,
   variable: "--font-doto",
 });
 
@@ -25,14 +31,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const tealiumSrc = `https://tags.tiqcdn.com/utag/${process.env.NEXT_PUBLIC_TEALIUM_ACCOUNT}/${process.env.NEXT_PUBLIC_TEALIUM_PROFILE}/${process.env.NEXT_PUBLIC_TEALIUM_ENV}/utag.js`;
 
   return (
-    <html lang="en" className={`${dotoFont.className} ${dotoFont.variable}`}>
+    <html lang="en" className={dotoFont.variable}>
       <head>
         <link rel="preconnect" href="https://tags.tiqcdn.com" crossOrigin="" />
-        {/* tell Tealium not to auto-fire a view */}
+        {/* Stop Tealium’s automatic page view */}
         <Script id="tealium-config" strategy="beforeInteractive">
           {`window.utag_cfg_ovrd = window.utag_cfg_ovrd || {}; window.utag_cfg_ovrd.noview = true;`}
         </Script>
-        {/* load Tealium and dispatch tealium:ready */}
+        {/* Load Tealium and emit readiness */}
         <TealiumScript src={tealiumSrc} />
       </head>
       <body>

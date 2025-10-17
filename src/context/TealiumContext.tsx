@@ -1,4 +1,3 @@
-// src/context/TealiumContext.tsx
 "use client";
 
 import React, {
@@ -10,6 +9,7 @@ import React, {
 } from "react";
 import { usePathname } from "next/navigation";
 
+/* ---------- types ---------- */
 export interface TealiumViewData {
   [key: string]: any;
 }
@@ -18,51 +18,68 @@ export interface TealiumLinkParams {
   event_content: string;
   [key: string]: any;
 }
-
 interface TealiumContextType {
   trackPageView: (pageData: TealiumViewData) => void;
   trackLink: (eventData: TealiumLinkParams) => void;
 }
 
-const TealiumContext = createContext<TealiumContextType | undefined>(undefined);
+/* ---------- utag helpers (solve TS “possibly undefined”) ---------- */
+type ViewFn = (data: Record<string, any>) => void;
+type LinkFn = (data: Record<string, any>) => void;
+type Utag = { view?: ViewFn; link?: LinkFn };
 
-// console debug toggle: set NEXT_PUBLIC_TEALIUM_DEBUG=1
-const DEBUG = process.env.NEXT_PUBLIC_TEALIUM_DEBUG === "1";
-const log = (...args: any[]) => DEBUG && console.log(...args);
+const getUtag = (): Utag | undefined =>
+  typeof window === "undefined" ? undefined : (window as any).utag;
+
+const hasUtag = (u?: Utag): u is { view: ViewFn; link: LinkFn } =>
+  !!u && typeof u.view === "function" && typeof u.link === "function";
+
+/* ---------- debug switch ---------- */
+const isDebug = () =>
+  process.env.NEXT_PUBLIC_TEALIUM_DEBUG === "1" ||
+  (typeof window !== "undefined" &&
+    (localStorage.getItem("tealium_debug") === "1" ||
+      /(?:^|[?&])tealdebug=1(?:&|$)/.test(window.location.search)));
+
+const log = (...args: any[]) => {
+  if (isDebug()) console.log(...args);
+};
+
+/* ---------- context ---------- */
+const TealiumContext = createContext<TealiumContextType | undefined>(undefined);
 
 export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const pathname = usePathname();
   const lastTrackedPath = useRef<string | null>(null);
-
-  // queues while utag loads
+  const isReadyRef = useRef(false);
+  const startedPollRef = useRef(false);
   const viewQueue = useRef<TealiumViewData[]>([]);
   const linkQueue = useRef<TealiumLinkParams[]>([]);
-  const isReadyRef = useRef(false);
-  const startedWaitRef = useRef(false);
 
+  /* flush queues once utag is ready */
   const flushQueues = useCallback(() => {
-    if (!isReadyRef.current || typeof window === "undefined" || !window.utag)
-      return;
+    const utag = getUtag();
+    if (!isReadyRef.current || !hasUtag(utag)) return;
 
     let v: TealiumViewData | undefined;
     while ((v = viewQueue.current.shift())) {
-      window.utag.view!(v);
+      utag.view(v);
       lastTrackedPath.current = pathname;
       log("Tealium event fired: utag.view", v);
     }
 
     let l: TealiumLinkParams | undefined;
     while ((l = linkQueue.current.shift())) {
-      window.utag.link!(l);
+      utag.link(l);
       log("Tealium event fired: utag.link", l);
     }
   }, [pathname]);
 
+  /* public API */
   const trackPageView = useCallback(
     (pageData: TealiumViewData) => {
-      // de-dupe per path
       if (pathname === lastTrackedPath.current) {
         log("Tealium view skipped: duplicate path", pathname);
         return;
@@ -79,13 +96,9 @@ export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
         ...pageData,
       };
 
-      const ready =
-        typeof window !== "undefined" &&
-        !!window.utag &&
-        typeof window.utag.view === "function";
-
-      if (ready) {
-        window.utag!.view!(payload);
+      const utag = getUtag();
+      if (hasUtag(utag)) {
+        utag.view(payload);
         lastTrackedPath.current = pathname;
         log("Tealium event fired: utag.view", payload);
       } else {
@@ -97,18 +110,10 @@ export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const trackLink = useCallback((eventData: TealiumLinkParams) => {
-    const payload: TealiumLinkParams = {
-      event_category: "content",
-      ...eventData,
-    };
-
-    const ready =
-      typeof window !== "undefined" &&
-      !!window.utag &&
-      typeof window.utag.link === "function";
-
-    if (ready) {
-      window.utag!.link!(payload);
+    const payload: TealiumLinkParams = { event_category: "content", ...eventData };
+    const utag = getUtag();
+    if (hasUtag(utag)) {
+      utag.link(payload);
       log("Tealium event fired: utag.link", payload);
     } else {
       linkQueue.current.push(payload);
@@ -116,7 +121,7 @@ export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  // dispatch from <TealiumScript/> onload
+  /* listen for the custom ‘tealium:ready’ event from the loader */
   useEffect(() => {
     const onReady = () => {
       isReadyRef.current = true;
@@ -126,28 +131,21 @@ export const TealiumProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => window.removeEventListener("tealium:ready", onReady);
   }, [flushQueues]);
 
-  // fallback poll (TS-safe)
+  /* fallback polling in case the event is missed */
   useEffect(() => {
-    if (isReadyRef.current || startedWaitRef.current) return;
-    startedWaitRef.current = true;
+    if (isReadyRef.current || startedPollRef.current) return;
+    startedPollRef.current = true;
 
     let tries = 0;
     const timer = setInterval(() => {
       tries++;
-
-      const hasUtag =
-        typeof window !== "undefined" &&
-        !!window.utag &&
-        typeof window.utag.view === "function" &&
-        typeof window.utag.link === "function";
-
-      if (hasUtag) {
+      const utag = getUtag();
+      if (hasUtag(utag)) {
         isReadyRef.current = true;
         clearInterval(timer);
         flushQueues();
         return;
       }
-
       if (tries > 40) {
         clearInterval(timer);
         log("Tealium 'utag' not detected after waiting.");

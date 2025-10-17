@@ -57,7 +57,7 @@ export default function Home() {
         data-track-page-name="My Data & Analytics Blog"
         data-attribute-page-title="Blog Homepage"
       >
-        My Data & Analytics Blog
+        Coming Soon
       </Title>
 
       <Text c="dimmed" mt="md">

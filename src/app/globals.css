@@ -1,11 +1,14 @@
-/* src/app/globals.css */
-html {
-  font-family: var(--font-doto), sans-serif;
+/* Make sure the variable-based font is actually used */
+:root {
+  --font-fallback: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+html, body {
+  font-family: var(--font-doto), var(--font-fallback);
   background-color: #ffffff;
   color: #1a202c;
-}
-body {
   margin: 0;
   padding: 0;
 }
-h1,h2,h3,h4,h5,h6 { margin: 0; }
+
+h1, h2, h3, h4, h5, h6 { margin: 0; }
