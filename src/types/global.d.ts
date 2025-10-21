@@ -1,5 +1,6 @@
-// src/global.d.ts
+// src/types/global.d.ts
 export {};
+
 declare global {
   interface Window {
     utag?: {

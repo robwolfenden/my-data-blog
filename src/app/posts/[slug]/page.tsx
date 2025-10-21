@@ -1,16 +1,22 @@
-// app/posts/[slug]/page.tsx
 import { Container, Title, Text, Paper, Anchor } from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug } from '../../../../lib/wordpress';
 import TealiumView from './tealium-view';
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug);
+// NOTE: params is a Promise in Next.js 15 Server Components
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params; // ✅ must await before using
+
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   return (
-    <Container size="md" py="xl">
+    <Container size="md" py="xl" className="shell narrow">
       <Anchor component={Link} href="/" mb="xl">
         &larr; Back to all posts
       </Anchor>
