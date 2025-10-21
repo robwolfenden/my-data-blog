@@ -2,6 +2,8 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import localFont from 'next/font/local';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import '@mantine/core/styles.css';
 import './globals.css';
 import Providers from './Providers';
@@ -23,7 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const tealiumSrc = `https://tags.tiqcdn.com/utag/${process.env.NEXT_PUBLIC_TEALIUM_ACCOUNT}/${process.env.NEXT_PUBLIC_TEALIUM_PROFILE}/${process.env.NEXT_PUBLIC_TEALIUM_ENV}/utag.js`;
 
   return (
-    <html lang="en" className={dotoFont.variable}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable} ${dotoFont.variable}`}
+    >
       <head>
         {/* 1) PREVENT Tealium's auto pageview */}
         <Script id="tealium-config" strategy="beforeInteractive">
