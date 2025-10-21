@@ -8,6 +8,8 @@ import '@mantine/core/styles.css';
 import './globals.css';
 import Providers from './Providers';
 import TealiumScript from './TealiumScript';
+import SiteHeader from '../ui/SiteHeader';
+import SiteFooter from '../ui/SiteFooter';
 
 const dotoFont = localFont({
   src: [{ path: '../fonts/Doto-Variable.woff2', weight: '100 900', style: 'normal' }],

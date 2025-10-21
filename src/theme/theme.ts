@@ -16,7 +16,7 @@ export const theme = createTheme({
     },
   },
   components: {
-    Container: { defaultProps: { size: 960, px: 'md' } }, // similar width to the starter
+    Container: { defaultProps: { size: 1152, px: 'md' } }, // similar width to the starter
     Paper: { defaultProps: { radius: 'lg' } },
   },
 });
