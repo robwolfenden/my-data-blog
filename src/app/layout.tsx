@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import localFont from 'next/font/local';
@@ -8,8 +7,7 @@ import '@mantine/core/styles.css';
 import './globals.css';
 import Providers from './Providers';
 import TealiumScript from './TealiumScript';
-import SiteHeader from '../ui/SiteHeader';
-import SiteFooter from '../ui/SiteFooter';
+import AppShellLayout from '../ui/AppShellLayout'; // Import the new AppShellLayout
 
 const dotoFont = localFont({
   src: [{ path: '../fonts/Doto-Variable.woff2', weight: '100 900', style: 'normal' }],
@@ -19,8 +17,8 @@ const dotoFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'My Data & Analytics Blog',
-  description: 'A blog about modern data and web analytics.',
+  title: 'Rob Wolfenden | Data & Analytics',
+  description: 'Focusing on one core challenge: bridging the gap between complex data and the customer. My background is not just in data; it is rooted in customer and user experience design, which shapes how I approach defining enterprise data strategy and leading agile teams.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,8 +45,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {/* 2) LOAD utag.js and signal readiness for our provider to flush any queued calls */}
         <TealiumScript src={tealiumSrc} />
-        <Providers>{children}</Providers>
+
+        {/* The Providers component, which should contain your MantineProvider, wraps the entire UI */}
+        <Providers>
+            {/* The new AppShellLayout handles the main structure */}
+            <AppShellLayout>
+                {children}
+            </AppShellLayout>
+        </Providers>
       </body>
     </html>
   );
 }
+

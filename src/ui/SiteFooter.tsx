@@ -1,17 +1,14 @@
-import { Container } from '@mantine/core';
-
 export default function SiteFooter() {
   return (
     <footer className="site-footer">
-      <Container className="site-footer__inner" size={960}>
-        <p>© {new Date().getFullYear()} • MIT Licensed</p>
-        <p className="site-footer__links">
-          <a href="/rss.xml">rss</a>
-          <a href="https://github.com/robwolfenden/my-data-blog" rel="noopener noreferrer">
-            view source
-          </a>
-        </p>
-      </Container>
+      <div className="site-footer__inner container">
+        <div className="site-footer__links" style={{ display: 'flex', gap: 16 }}>
+          <a href="#">rss</a>
+          <a href="#">github</a>
+          <a href="#">view source</a>
+        </div>
+        <span className="site-footer__copy">© 2025 MIT Licensed</span>
+      </div>
     </footer>
   );
 }

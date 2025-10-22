@@ -1,49 +1,28 @@
 /* src/app/Home.module.css */
-html {
-  background-color: #ffffff;
-  color: #1a202c;
-}
 .main {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* was: center */
   padding: 2rem 1rem;
 }
 
-.content {
-  width: 100%;
-  max-width: 800px;
-}
-
 .title {
-  font-size: 3rem; /* 48px */
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.05em;
 }
 
-.subtitle {
-  margin-top: 0.5rem;
-  font-size: 1.125rem; /* 18px */
-  color: #4a5568;
-}
-
+/* Keep these local card styles */
 .postLink {
   display: block;
   padding: 1rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  margin-top: 1rem;
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.2s;
+  transition: background-color .2s;
 }
 
-.postLink:hover {
-  background-color: #f7fafc;
-}
+.postLink:hover { background-color: #f7fafc; }
 
-.postTitle {
-  font-size: 1.25rem; /* 20px */
-  font-weight: 700;
-  color: #2b6cb0;
-}
+.postTitle { font-size: 1.25rem; font-weight: 700; color: #2b6cb0; }

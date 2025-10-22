@@ -1,42 +1,53 @@
-/* ---- Shell (header/footer) ---- */
-.site-header {
-  border-bottom: 1px solid #e5e7eb; /* neutral-200 */
-  background: #fff;
+/* ========= Global layout & typography ========= */
+
+/* Site column: right-aligned on mobile, centered on ≥768px */
+:root {
+  --site-max: 820px;       /* change to taste */
+  --site-gutter: 16px;     /* horizontal page padding */
 }
+
+.container {
+  width: min(100% - (var(--site-gutter) * 2), var(--site-max));
+  margin-left: auto;       /* right-align on small screens */
+  margin-right: 0;
+}
+
+@media (min-width: 768px) {
+  .container {
+    margin-right: auto;    /* center on wider screens */
+  }
+}
+
+/* Vertical breathing room for the main content area */
+.page-main { padding-block: clamp(24px, 6vw, 48px); }
+
+/* ========= Shell (header/footer) ========= */
+
+/* Header: NO border (the old underline came from a duplicate rule) */
+.site-header { background: #fff; }
+
 .site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 64px;
 }
+
 .site-brand {
   font-weight: 600;
   letter-spacing: -0.01em;
   text-decoration: none;
   color: inherit;
 }
-.site-nav {
-  display: flex;
-  gap: 1.25rem;
-  font-size: 0.95rem;
-}
-.site-nav__link {
-  text-decoration: none;
-  color: #111827;
-  opacity: 0.8;
-}
+
+/* Primary nav */
+.site-nav { display: flex; gap: 1.25rem; font-size: 0.95rem; }
+.site-nav__link { text-decoration: none; color: #111827; opacity: 0.8; }
 .site-nav__link:hover { opacity: 1; text-decoration: underline; }
 .site-nav__link.is-active { opacity: 1; }
 
-.page-main {
-  padding-top: 2.5rem; /* space under header */
-  padding-bottom: 2.5rem; /* space above footer */
-}
-
-.site-footer {
-  border-top: 1px solid #e5e7eb;
-  background: #fff;
-}
+/* Footer */
+.site-footer { background: #fff; border-top: 1px solid #e5e7eb; }
 .site-footer__inner {
   display: flex;
   align-items: center;
@@ -45,24 +56,44 @@
   color: #6b7280; /* neutral-500 */
   font-size: 0.9rem;
 }
-.site-footer__links {
-  display: flex;
-  gap: 1rem;
-}
+.site-footer__links { display: flex; gap: 1rem; }
 .site-footer__links a { color: inherit; text-decoration: none; }
 .site-footer__links a:hover { text-decoration: underline; }
 
-/* ---- Typography/content polish (from earlier) ---- */
-.lede { font-size: 1.125rem; line-height: 1.7; color: #4b5563; max-width: 65ch; }
-.post-list { display: grid; gap: 2rem; }
-@media (min-width: 768px) { .post-list { grid-template-columns: 1fr 1fr; } }
+/* ========= Blog list (one per row) ========= */
+
+.post-list {
+  display: grid;
+  grid-template-columns: 1fr;  /* always single column */
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Single-row item styling used by <PostRow/> */
+.post { display: flex; align-items: baseline; gap: 1rem; }
+.post-date { color: #6b7280; font-size: .95rem; min-width: 12ch; }
+.post-title { text-decoration: none; color: inherit; font-weight: 600; }
+.post-title:hover { text-decoration: underline; }
+
+/* ========= Content polish ========= */
+
+.lede { font-size: 1rem; line-height: 1.5; color: #4b5563; max-width: 65ch; }
+
 .prose { color: #111827; line-height: 1.75; max-width: 65ch; }
-.prose h1,.prose h2,.prose h3{ font-weight:600; letter-spacing:-.01em; margin-top:2.2em; margin-bottom:.6em; }
-.prose h1{ font-size:2.25rem; line-height:1.15; }
-.prose h2{ font-size:1.75rem; line-height:1.2; }
-.prose h3{ font-size:1.25rem; line-height:1.25; }
-.prose p,.prose ul,.prose ol,.prose blockquote,.prose pre{ margin-top:1.1em; margin-bottom:1.1em; }
-.prose img{ border-radius:.75rem; display:block; margin:1.5rem auto; }
-.prose blockquote{ border-left:4px solid #e5e7eb; padding-left:1rem; color:#374151; font-style:italic; }
-.prose code{ background:#f3f4f6; padding:.15rem .35rem; border-radius:.375rem; font-family:var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.95em; }
-.prose pre{ background:#0a0a0a; color:#e5e7eb; padding:1rem; border-radius:.75rem; overflow:auto; }
+.prose h1, .prose h2, .prose h3 { font-weight: 600; letter-spacing: -.01em; margin-top: 2.2em; margin-bottom: .6em; }
+.prose h1 { font-size: 1rem; line-height: 1.15; }
+.prose h2 { font-size: 1.75rem; line-height: 1.2; }
+.prose h3 { font-size: 1.25rem; line-height: 1.25; }
+.prose p, .prose ul, .prose ol, .prose blockquote, .prose pre { margin-top: 1.1em; margin-bottom: 1.1em; }
+.prose img { border-radius: .75rem; display: block; margin: 1.5rem auto; }
+.prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; color: #374151; font-style: italic; }
+.prose code {
+  background: #f3f4f6;
+  padding: .15rem .35rem;
+  border-radius: .375rem;
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .95em;
+}
+.prose pre { background: #0a0a0a; color: #e5e7eb; padding: 1rem; border-radius: .75rem; overflow: auto; }
