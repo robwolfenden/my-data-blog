@@ -10,7 +10,7 @@ type Props = {
 
 export function Section({ title, description, spacing = 'xl', children }: PropsWithChildren<Props>) {
   return (
-    <Container py={spacing}>
+    <Container fluid px={0} py={spacing} className="container">
       <Stack gap="sm">
         <Title order={2}>{title}</Title>
         {description && <Text c="dimmed">{description}</Text>}
