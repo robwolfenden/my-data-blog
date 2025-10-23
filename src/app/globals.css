@@ -19,7 +19,7 @@
 }
 
 /* Vertical breathing room for the main content area */
-.page-main { padding-block: clamp(24px, 6vw, 48px); }
+.page-main { padding-block: clamp(48px, 6vw, 48px); }
 
 /* ========= Shell (header/footer) ========= */
 
