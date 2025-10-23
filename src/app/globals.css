@@ -9,7 +9,6 @@
 .container {
   width: min(100% - (var(--site-gutter) * 2), var(--site-max));
   margin-left: auto;       /* right-align on small screens */
-  margin-right: 0;
 }
 
 @media (min-width: 768px) {

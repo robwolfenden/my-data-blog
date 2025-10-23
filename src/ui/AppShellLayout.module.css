@@ -11,3 +11,12 @@
     var(--mantine-color-dark-6)
   );
 }
+
+/* Optional: show an active state when data-active="true" is set */
+.control[data-active="true"] {
+  font-weight: 600;
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-6)
+  );
+}
