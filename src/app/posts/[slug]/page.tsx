@@ -2,7 +2,7 @@ import { Container, Title, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug } from '../../../../lib/wordpress';
-import TealiumView from './tealium-view';
+import TealiumAutoPageView from '@/tealium/TealiumAutoPageView';
 
 export const revalidate = 300; // optional ISR
 
@@ -20,11 +20,14 @@ export default async function PostPage({
   return (
     <Container fluid px={0} py="xl" className="container">
       {/* Tealium page_view (unchanged) */}
-      <TealiumView
-        title={post.title}
-        slug={post.slug}
-        date={post.date}
-        pageSubcategory={post.page_subcategory ?? 'N/A'}
+      <TealiumAutoPageView
+        overrides={{
+          page_title: post.title,
+          page_path: `/posts/${slug}`,
+          content_category: 'blog-post',
+          page_subcategory: post.page_subcategory ?? 'N/A',
+          publish_date: post.date,
+        }}
       />
 
       <Anchor component={Link} href="/blog" mb="xl">

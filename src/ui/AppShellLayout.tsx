@@ -25,7 +25,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
       {/* Header */}
       <AppShell.Header withBorder={false}>
         {/* keep your site-wide column */}
-        <Group h="100%" className="container">
+        <Group h="100%" px="sm" className="container">
           <Burger
             opened={opened}
             onClick={toggle}
@@ -37,7 +37,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
           <Group justify="space-between" style={{ flex: 1 }}>
             {/* Brand / left side */}
             <Link href="/" className="site-brand">
-              Rob Wolfenden | Data & Analytics
+              My Portfolio
             </Link>
 
             {/* Desktop nav */}

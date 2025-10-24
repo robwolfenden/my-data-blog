@@ -2,7 +2,7 @@
 import { Container, Title, Text } from '@mantine/core';
 import { getAllPosts, WPost } from '../../../lib/wordpress';
 import { PostRow } from '../../ui/PostRow';
-import TealiumClient from './TealiumClient';
+import TealiumAutoPageView from '@/tealium/TealiumAutoPageView';
 
 export const revalidate = 300; // optional: rebuild this list every 5 minutes
 
@@ -12,7 +12,7 @@ export default async function BlogPage() {
   return (
     <Container fluid px={0} py="xl" className="container">
       {/* Tealium page-view for /blog */}
-      <TealiumClient path="/blog" />
+      <TealiumAutoPageView overrides={{ page_path: '/blog', content_category: 'blog-listing', page_title: 'Blog' }} />
 
       <Title order={1} fz={{ base: 28, sm: 40, lg: 56 }} fw={800} lh={1.1}>
         Blog

@@ -4,16 +4,11 @@
 import { useEffect, useState } from 'react';
 import { Container, Title, Text } from '@mantine/core';
 import { getAllPosts, WPost } from '../../lib/wordpress';
-import { useTealium } from '../context/TealiumContext';
 import { PostRow } from '../ui/PostRow';
+import TealiumAutoPageView from '@/tealium/TealiumAutoPageView';
 
 export default function Home() {
   const [posts, setPosts] = useState<WPost[]>([]);
-  const { trackPageView } = useTealium();
-
-  useEffect(() => {
-    trackPageView({ content_category: 'blog-listing', page_path: '/' });
-  }, [trackPageView]);
 
   useEffect(() => {
     (async () => setPosts(await getAllPosts()))();
@@ -21,7 +16,19 @@ export default function Home() {
 
   return (
     <Container fluid px={0} py="xl" className="container">
-      <Title order={1} fz={{ base: 28, sm: 40, lg: 56 }} fw={200} lh={1.1}>Well, hello.</Title>
+      <Title
+        order={1}
+        fz={{ base: 28, sm: 40, lg: 56 }}
+        fw={200}
+        lh={1.1}
+        data-track-page-title="Home"
+        data-track-content-category="homepage"
+      >
+        Well, hello.
+      </Title>
+
+      {/* Unified Tealium page view (reads the data-track-* above) */}
+      <TealiumAutoPageView overrides={{ page_path: '/' }} />
       <Text className="lede" mt="sm">
         Welcome. I'm a senior leader with 17 years of experience in executive management and consultancy, 
         focused on one core challenge: bridging the gap between complex data and the customer. 
