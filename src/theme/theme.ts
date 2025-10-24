@@ -3,9 +3,9 @@ import { createTheme } from '@mantine/core';
 
 export const theme = createTheme({
   fontFamily:
-    'var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
+    'var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
   fontFamilyMonospace:
-    'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
   defaultRadius: 'md',
   headings: {
     fontFamily: 'var(--font-geist-sans)',

@@ -2,8 +2,8 @@
 'use client';
 
 import { MantineProvider } from '@mantine/core';
-import { TealiumProvider } from '../context/TealiumContext';
-import { theme } from '../theme/theme';
+import { TealiumProvider } from '@/tracking/tealium';
+import { theme } from '@/theme/theme';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { Container, Title, Text } from '@mantine/core';
-import { getAllPosts, WPost } from '../../lib/wordpress';
-import { PostRow } from '../ui/PostRow';
-import TealiumAutoPageView from '@/tealium/TealiumAutoPageView';
+import { getAllPosts, WPost } from '@/lib/wordpress';
+import { PostRow } from '@/components/blog/PostRow';
+import { TealiumPageView } from '@/tracking/tealium';
 
 export default function Home() {
   const [posts, setPosts] = useState<WPost[]>([]);
@@ -24,11 +24,11 @@ export default function Home() {
         data-track-page-title="Home"
         data-track-content-category="homepage"
       >
-        Well, hello.
+        Hello there..
       </Title>
 
       {/* Unified Tealium page view (reads the data-track-* above) */}
-      <TealiumAutoPageView overrides={{ page_path: '/' }} />
+      <TealiumPageView overrides={{ page_path: '/' }} />
       <Text className="lede" mt="sm">
         Welcome. I'm a senior leader with 17 years of experience in executive management and consultancy, 
         focused on one core challenge: bridging the gap between complex data and the customer. 

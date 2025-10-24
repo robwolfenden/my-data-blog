@@ -4,7 +4,7 @@
 import { MouseEvent, ReactNode } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { Button as MButton, ButtonProps as MantineButtonProps } from '@mantine/core';
-import { useTealium } from '../context/TealiumContext';
+import { useTealium } from '@/tracking/tealium';
 
 // Shared extras for analytics
 type Shared = {

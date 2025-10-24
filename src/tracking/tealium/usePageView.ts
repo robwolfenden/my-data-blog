@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { useTealium } from '@/context/TealiumContext';
+import { useTealium } from '@/tracking/tealium/Context';
 
 type Vars = Record<string, unknown>;
 type Options = {

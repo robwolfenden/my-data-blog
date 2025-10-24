@@ -1,6 +1,5 @@
 'use client';
-
-import usePageViewTracker from './usePageViewTracker';
+import usePageView from './usePageView';
 
 export type TealiumAutoPageViewProps = {
   overrides?: Record<string, unknown>;
@@ -9,6 +8,6 @@ export type TealiumAutoPageViewProps = {
 };
 
 export default function TealiumAutoPageView(props: TealiumAutoPageViewProps) {
-  usePageViewTracker(props);
+  usePageView(props);
   return null;
 }

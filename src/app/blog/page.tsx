@@ -1,8 +1,8 @@
 // src/app/blog/page.tsx
 import { Container, Title, Text } from '@mantine/core';
-import { getAllPosts, WPost } from '../../../lib/wordpress';
-import { PostRow } from '../../ui/PostRow';
-import TealiumAutoPageView from '@/tealium/TealiumAutoPageView';
+import { getAllPosts } from '@/lib/wordpress';
+import { PostRow } from '@/components/blog/PostRow';
+import { TealiumPageView } from '@/tracking/tealium';
 
 export const revalidate = 300; // optional: rebuild this list every 5 minutes
 
@@ -12,12 +12,19 @@ export default async function BlogPage() {
   return (
     <Container fluid px={0} py="xl" className="container">
       {/* Tealium page-view for /blog */}
-      <TealiumAutoPageView overrides={{ page_path: '/blog', content_category: 'blog-listing', page_title: 'Blog' }} />
+      <TealiumPageView overrides={{ page_path: '/blog', content_category: 'blog-listing', page_title: 'Blog' }} />
 
-      <Title order={1} fz={{ base: 28, sm: 40, lg: 56 }} fw={800} lh={1.1}>
+      <Title
+        order={1}
+        fz={{ base: 28, sm: 40, lg: 56 }}
+        fw={200}
+        lh={1.1}
+        data-track-page-title="Home"
+        data-track-content-category="homepage"
+      >
         Blog
       </Title>
-      <Text className="lede" mt="sm">All posts.</Text>
+      <Text className="lede" mt="sm">All musings...</Text>
 
       <ul className="post-list" style={{ marginTop: 'var(--mantine-spacing-xl)' }}>
         {posts.map((p: any) => (

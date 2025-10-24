@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTealium } from "../context/TealiumContext";
+import { useTealium } from '@/tracking/tealium';
 
 export function PostRow(props: { slug: string; title: string; date: string }) {
   const { trackLink } = useTealium();
