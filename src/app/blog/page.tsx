@@ -24,7 +24,7 @@ export default async function BlogPage() {
       >
         Blog
       </Title>
-      <Text className="lede" mt="sm">All musings...</Text>
+      <Text className="lede" mt="sm">All Musings</Text>
 
       <ul className="post-list" style={{ marginTop: 'var(--mantine-spacing-xl)' }}>
         {posts.map((p: any) => (
