@@ -7,7 +7,7 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './AppShellLayout.module.css';
 
 const links = [
-  // { label: 'Home', href: '/' },
+  { label: 'home', href: '/' },
   
 ];
 
