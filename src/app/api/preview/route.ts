@@ -6,12 +6,9 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const { isEnabled } = await draftMode();
 
-  // Use the request's headers; avoids the "Promise<ReadonlyHeaders>" TS error
-  const host = req.headers.get('host') ?? '';
-  const isLocalHost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-
+  // No async headers() here—use the request headers directly
   const shouldIncludeDrafts =
-    isEnabled || (process.env.SHOW_DRAFTS_LOCAL === 'true' && isLocalHost);
+    isEnabled || process.env.SHOW_DRAFTS_LOCAL === 'true';
 
   const headersOut: Record<string, string> = { 'Content-Type': 'application/json' };
   if (shouldIncludeDrafts && process.env.WP_USER && process.env.WP_APP_PW) {

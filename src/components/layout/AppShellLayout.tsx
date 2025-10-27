@@ -8,7 +8,7 @@ import classes from './AppShellLayout.module.css';
 
 const links = [
   { label: 'home', href: '/' },
-  
+  { label: 'blog', href: '/blog' },
 ];
 
 export default function AppShellLayout({ children }: { children: React.ReactNode }) {

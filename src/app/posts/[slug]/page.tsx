@@ -1,25 +1,34 @@
+// src/app/posts/[slug]/page.tsx
+// SINGLE POST — Mantine + Tealium preserved
+
 import { Container, Title, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { draftMode } from 'next/headers';
 import { getPostBySlug } from '@/lib/wordpress';
 import { TealiumPageView } from '@/tracking/tealium';
 
-export const revalidate = 300; // optional ISR
+export const revalidate = 300; // ISR for published pages
 
-// Next.js 15: params is a Promise
+type Params = { slug: string };
+
+// Next 15: params can be a Promise; await before using
 export default async function PostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<Params>;
 }) {
   const { slug } = await params;
+  const { isEnabled } = await draftMode();
 
-  const post = await getPostBySlug(slug);
+  const includeDrafts = isEnabled || process.env.SHOW_DRAFTS_LOCAL === 'true';
+
+  const post = await getPostBySlug(slug, includeDrafts);
   if (!post) notFound();
 
   return (
     <Container fluid px={0} py="xl" className="container">
-      {/* Tealium page_view (unchanged) */}
+      {/* Tealium page_view */}
       <TealiumPageView
         overrides={{
           page_title: post.title,
@@ -58,7 +67,7 @@ export default async function PostPage({
       <article
         className="prose"
         style={{ marginTop: 'var(--mantine-spacing-xl)' }}
-        dangerouslySetInnerHTML={{ __html: post.content! }}
+        dangerouslySetInnerHTML={{ __html: post.content ?? '' }}
       />
     </Container>
   );
