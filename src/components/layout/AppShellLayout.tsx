@@ -7,8 +7,8 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './AppShellLayout.module.css';
 
 const links = [
-  { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
+  // { label: 'Home', href: '/' },
+  
 ];
 
 export default function AppShellLayout({ children }: { children: React.ReactNode }) {
@@ -23,39 +23,40 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   padding="md"
 >
   <AppShell.Header withBorder={false} style={{ paddingInline: 0 }}>
-    <Group
-      h="100%"
-      px={0}
-      className="container"
-      justify="space-between"
-      align="center"
-    >
-      <Burger
-        opened={opened}
-        onClick={toggle}
-        hiddenFrom="md"        // ← was "sm"
-        size="sm"
-        aria-label="Toggle navigation"
-      />
+  <Group
+    h="100%"
+    px={0}
+    className="container"
+    justify="flex-start"        // always left-align the left cluster
+    align="center"
+    gap="xs"
+  >
+    <Burger
+      opened={opened}
+      onClick={toggle}
+      hiddenFrom="md"
+      size="sm"
+      aria-label="Toggle navigation"
+    />
 
-      <Link href="/" className="site-brand">Rob Wolfenden | Analytics & UX</Link>
+    <Link href="/" className="site-brand">Rob Wolfenden | Analytics & UX</Link>
 
-      {/* Desktop nav only from md+ */}
-      <Group gap="xs" visibleFrom="md" mr='xs' ml='xs'>   {/* ← was "sm"; also use ml="auto" */}
-        {links.map((l) => (
-          <UnstyledButton
-            key={l.href}
-            component={Link}
-            href={l.href}
-            className={classes.control}
-            data-active={pathname === l.href || undefined}
-          >
-            {l.label}
-          </UnstyledButton>
-        ))}
-      </Group>
+    {/* Desktop nav only from md+ */}
+    <Group gap="xs" visibleFrom="md" ml="auto" mr="xs">
+      {links.map((l) => (
+        <UnstyledButton
+          key={l.href}
+          component={Link}
+          href={l.href}
+          className={classes.control}
+          data-active={pathname === l.href || undefined}
+        >
+          {l.label}
+        </UnstyledButton>
+      ))}
     </Group>
-  </AppShell.Header>
+  </Group>
+</AppShell.Header>
 
   <AppShell.Navbar py="md" px="md">
     {links.map((l) => (
