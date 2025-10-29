@@ -70,10 +70,19 @@
   margin: 0;
 }
 
+/* Alias for lists rendered as <ul class="posts"> */
+ul.posts {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;   /* kill the built-in indent */
+  padding-right: 0;
+  padding-bottom: 1rem;
+}
+
 /* Single-row item styling used by <PostRow/> */
 .post { display: flex; align-items: baseline; gap: 1rem; }
 .post-date { color: #6b7280; font-size: .95rem; min-width: 12ch; }
-.post-title { text-decoration: none; color: inherit; font-weight: 600; }
+.post-title { text-decoration: none; color: inherit; font-weight: 600;}
 .post-title:hover { text-decoration: underline; }
 
 /* ========= Content polish ========= */
@@ -81,8 +90,8 @@
 .lede { font-size: 1rem; line-height: 1.5; color: #4b5563; max-width: 65ch; }
 
 .prose { color: #111827; line-height: 1.75; max-width: 65ch; }
-.prose h1, .prose h2, .prose h3 { font-weight: 600; letter-spacing: -.01em; margin-top: 2.2em; margin-bottom: .6em; }
-.prose h1 { font-size: 1rem; line-height: 1.15; }
+.prose h1, .prose h2, .prose h3 { font-weight: 600; letter-spacing: -.01em; margin-top: 1em; margin-bottom: .6em; }
+.prose h1 { font-size: 1rem; line-height: 1.15;}
 .prose h2 { font-size: 1.75rem; line-height: 1.2; }
 .prose h3 { font-size: 1.25rem; line-height: 1.25; }
 .prose p, .prose ul, .prose ol, .prose blockquote, .prose pre { margin-top: 1.1em; margin-bottom: 1.1em; }

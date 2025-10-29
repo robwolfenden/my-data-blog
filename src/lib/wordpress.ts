@@ -41,7 +41,7 @@ async function fetchAPI(
   const { variables, asPreview = false } = opts;
 
   // Only need auth when we intend to read drafts (local dev or preview mode)
-  const needsAuth = IS_LOCAL || asPreview;
+  const needsAuth = asPreview;
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   // Attach auth only on the server; the client uses /api/graphql which adds auth server-side.

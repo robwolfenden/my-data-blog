@@ -6,9 +6,17 @@ import { useTealium } from '@/tracking/tealium/Context';
 
 type Vars = Record<string, unknown>;
 type Options = {
+  /** contextual data only; DOM attributes (data-track-*) remain the source of truth for page_title, etc. */
+  contextdata?: Vars;
+
+  /** optional override for where we read data-track-* attributes (default: [data-track-page-title]) */
+  findSelector?: string;
+
+  /** fire only once per path vs. on every render (default: true) */
+  fireOncePerPath?: boolean;
+
+  /** TEMP: backwards-compat shim (remove after migrating callers) */
   overrides?: Vars;
-  findSelector?: string;      // defaults to [data-track-page-title]
-  fireOncePerPath?: boolean;  // default true
 };
 
 function kebabToSnake(s: string) {
@@ -44,22 +52,29 @@ function waitForUtag(timeoutMs = 5000): Promise<boolean> {
 }
 
 export default function usePageViewTracker({
-  overrides,
+  contextdata,
   findSelector,
   fireOncePerPath = true,
+  // TEMP shim: accept `overrides` but map it to `contextdata` if `contextdata` is not provided
+  overrides,
 }: Options = {}) {
   const pathname = usePathname();
   const { trackPageView } = useTealium();
   const lastPathRef = useRef<string | null>(null);
 
+  // prefer contextdata; fall back to overrides for backwards-compat
+  const ctx = contextdata ?? overrides ?? {};
+
   useEffect(() => {
     if (fireOncePerPath && lastPathRef.current === pathname) return;
 
     (async () => {
-      const vars = { ...readPageAttrs(findSelector), ...overrides };
+      // IMPORTANT: attributes win over contextdata (so the H1’s data-track-page-title is the source of truth)
+      const vars = { ...(ctx || {}), ...readPageAttrs(findSelector) };
       if (!(await waitForUtag())) return;
       trackPageView(vars);
       lastPathRef.current = pathname;
     })();
-  }, [pathname, overrides, findSelector, fireOncePerPath, trackPageView]);
+    // include `ctx` so updates to contextdata refire
+  }, [pathname, ctx, findSelector, fireOncePerPath, trackPageView]);
 }

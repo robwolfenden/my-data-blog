@@ -12,8 +12,6 @@ export const revalidate = 60;
 
 export default async function HomePage() {
   const { isEnabled } = await draftMode();
-
-  // Show drafts locally when SHOW_DRAFTS_LOCAL=true (no host checks needed)
   const includeDrafts = isEnabled || process.env.SHOW_DRAFTS_LOCAL === 'true';
 
   const posts = await getAllPosts(includeDrafts);
@@ -21,21 +19,25 @@ export default async function HomePage() {
 
   return (
     <Container fluid px={0} py="xl" className="container">
-      {/* Tealium page_view */}
       <TealiumPageView
-        overrides={{
-          page_title: 'Home',
+        contextdata={{
           page_path: '/',
           content_category: 'home',
-          page_subcategory: 'landing',
         }}
       />
 
-      {/* Your homepage copy (kept) */}
       <header style={{ marginBottom: 'var(--mantine-spacing-xl)' }}>
-        <Title order={1} fz={{ base: 28, sm: 40, lg: 56 }} fw={800} lh={1.1}>
+        <Title
+          order={1}
+          fz={{ base: 28, sm: 40, lg: 56 }}
+          fw={800}
+          lh={1.1}
+          // Source of truth for page_title:
+          data-track-page-title="Hello there.."
+        >
           Hello there..
         </Title>
+
         <Text mt="md" fz="lg">
           Welcome. I'm a senior leader with 17 years of experience in executive management and consultancy,
           focused on one core challenge: bridging the gap between complex data and the customer. My background
@@ -49,7 +51,6 @@ export default async function HomePage() {
         </Text>
       </header>
 
-      {/* Recent posts */}
       <section style={{ marginTop: 'var(--mantine-spacing-xl)' }}>
         <Title order={2}>Recent posts</Title>
         <ul className="posts" style={{ marginTop: 'var(--mantine-spacing-md)' }}>
