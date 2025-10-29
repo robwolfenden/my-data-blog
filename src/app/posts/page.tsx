@@ -29,7 +29,7 @@ export default async function BlogIndex() {
           order={1}
           data-track-page-title="Blog"
         >
-          Blog
+          Posts
         </Title>
       </header>
 
